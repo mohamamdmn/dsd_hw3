@@ -1,0 +1,131 @@
+module ControlUnit(
+    input wire clk,
+    input wire reset,
+    input [15:0] instruction,
+    input [15:0] alu_out,
+    input [15:0] memory_data_out,
+    input alu_done,
+    output reg [2:0] alu_op,
+    output reg alu_start,
+    output reg register_read,
+    output reg register_write,
+    output reg [15:0] register_file_data,
+    output reg memory_read,
+    output reg memory_write,
+    output reg [15:0] memory_data,
+    output reg [15:0] memory_addr,
+    output reg [1:0] rs1, rs2, rd,
+    output reg ready,
+    output reg [15:0] pc
+);
+
+    localparam FETCH = 0,
+               ID  = 1,
+               EXECUTE = 2,
+               MEMORY = 3,
+               WRITEBK = 4;
+
+    reg [15:0] instr_reg;
+    reg [2:0] state;
+    reg [15:0] rf_rs2_data; 
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            state <= FETCH;
+            ready <= 0;
+            alu_start <= 0;
+            pc <= 0;
+            register_write <= 0;
+            register_read <= 0;
+            memory_read <= 0;
+            memory_write <= 0;
+        end else begin
+            case (state)
+                FETCH: begin
+                    memory_read <= 1;
+                    memory_addr <= pc;
+                    ready <= 0;
+                    state <= ID;
+                end
+
+                ID: begin
+                    instr_reg <= memory_data_out;
+                    memory_read <= 0;
+
+                    case (memory_data_out[15:13])
+                        3'b000: alu_op <= 3'b000; // ADD
+                        3'b001: alu_op <= 3'b001; // SUB
+                        3'b010: alu_op <= 3'b010; // MUL
+                        3'b011: alu_op <= 3'b011; // DIV
+                        3'b100,
+                        3'b101: alu_op <= 3'b000; // LOAD/STORE uses ADD
+                        default: alu_op <= 3'b000;
+                    endcase
+
+                    case (memory_data_out[15:13])
+                        3'b000, 3'b001, 3'b010, 3'b011: begin
+                            rd <= memory_data_out[12:11];
+                            rs1 <= memory_data_out[10:9];
+                            rs2 <= memory_data_out[8:7];
+                            register_read <= 1;
+                        end
+                        3'b100, 3'b101: begin
+                            rd <= memory_data_out[12:11];
+                            rs1 <= memory_data_out[10:9];
+                            rs2 <= memory_data_out[12:11]; // for STORE
+                            register_read <= 1;
+                        end
+                    endcase
+
+                    state <= EXECUTE;
+                end
+
+                EXECUTE: begin
+                    register_read <= 0;
+                    alu_start <= 1;
+                    state <= MEMORY;
+                end
+
+                MEMORY: begin
+                    alu_start <= 0;
+                    if (alu_done) begin
+                        case (instr_reg[15:13])
+                            3'b000, 3'b001, 3'b010, 3'b011: begin
+                                register_file_data <= alu_out;
+                                register_write <= 1;
+                                state <= WRITEBK;
+                            end
+                            3'b100: begin
+                                memory_addr <= alu_out;
+                                memory_read <= 1;
+                                state <= WRITEBK;
+                            end
+                            3'b101: begin
+                                memory_addr <= alu_out;
+                                memory_data <= rf_rs2_data;
+                                memory_write <= 1;
+                                state <= WRITEBK;
+                            end
+                        endcase
+                    end
+                end
+
+                WRITEBK: begin
+                    register_write <= 0;
+                    memory_read <= 0;
+                    memory_write <= 0;
+
+                    if (instr_reg[15:13] == 3'b100) begin // LOAD
+                        register_file_data <= memory_data_out;
+                        register_write <= 1;
+                    end
+
+                    state <= FETCH;
+                    pc <= pc + 1;
+                    ready <= 1;
+                end
+            endcase
+        end
+    end
+
+endmodule
