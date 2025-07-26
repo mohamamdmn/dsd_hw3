@@ -28,9 +28,9 @@ module Top(
     wire i_type;
     wire [15:0] b_final;
     wire [15:0] sign_extended;
-    wire [1:0] read_addr1_real;
+    wire [1:0] read_reg_source1_real;
 
-    assign b_final = i_Type ? sign_extended : rf_read_data2;
+    assign b_final = i_type ? sign_extended : rf_read_data2;
     assign read_reg_source1_real = i_type ? cu_rd : cu_rs1;
 
 
@@ -55,7 +55,7 @@ module Top(
         .memory_write(cu_mem_write),
         .memory_addr(cu_mem_addr),
         .sign_extended(sign_extended),
-        .i_Type(i_type),
+        .i_type(i_type),
         .rs1(cu_rs1),
         .rs2(cu_rs2),
         .rd(cu_rd),
@@ -66,6 +66,7 @@ module Top(
     // 2. Register File - Stores processor state
     RegisterFile register_file(
         .clk(clk),
+        .reset(reset),
         .write_enable(cu_reg_write),
         .read_reg1(read_reg_source1_real),
         .read_reg2(cu_rs2),

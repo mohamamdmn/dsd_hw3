@@ -1,6 +1,7 @@
-module MainMemory (
-    parameter ADDR_WIDTH = 16,              
-    parameter DATA_WIDTH = 16              
+module MainMemory #(
+    parameter ADDR_WIDTH = 16,
+    parameter DATA_WIDTH = 16
+)(
     input clk,
     input mem_read,      
     input mem_write,    
@@ -18,3 +19,4 @@ module MainMemory (
         read_data <= mem[address];
     end
 endmodule
+

@@ -13,7 +13,7 @@ module ControlUnit(
     output reg memory_write,
     output reg [15:0] memory_addr,
     output reg [15:0] sign_extended,
-    output reg i_type;
+    output reg i_type,
     output reg [1:0] rs1, rs2, rd,
     output reg ready,
     output reg [15:0] pc
@@ -51,6 +51,20 @@ module ControlUnit(
             // Update PC only after a successful instruction cycle
             if (state == WRITEBK) begin
                 pc <= pc + 1;
+                alu_op <= 3'b000;
+                alu_start <= 0;
+                register_read <= 0;
+                register_write <= 0;
+                register_file_data <= 0;
+                memory_read <= 0;
+                memory_write <= 0;
+                memory_addr <= 0;
+                i_type <= 0;
+                sign_extended <= 16'd0;
+                rs1 <= 2'b00;
+                rs2 <= 2'b00;
+                rd <= 2'b00;
+                ready <= 0;
             end
         end
     end
@@ -61,22 +75,7 @@ module ControlUnit(
     // ===================================================================
     always @(*) begin
         // Default values for all control signals to avoid latches
-        alu_op = 3'b000;
-        alu_start = 0;
-        register_read = 0;
-        register_write = 0;
-        register_file_data = 0;
-        memory_read = 0;
-        memory_write = 0;
-        memory_data = 0;
-        memory_addr = 0;
-        i_Type = 0;
-        sign_extended = 16'd0;
-        rs1 = 2'b00;
-        rs2 = 2'b00;
-        rd = 2'b00;
-        ready = 0;
-        next_state = state; // Default: stay in the same state
+        // next_state = state; // Default: stay in the same state
 
         case (state)
             FETCH: begin
@@ -95,6 +94,7 @@ module ControlUnit(
                         rd = memory_data_out[12:11];
                         rs1 = memory_data_out[10:9];
                         rs2 = memory_data_out[8:7];
+                        i_type = 0;
                         register_read = 1;
                     end
                     // LOAD/STORE instructions
@@ -104,6 +104,7 @@ module ControlUnit(
                         rs1 = memory_data_out[10:9]; // Base address register
                         // For STORE, rs2 is not used for ALU, but rd is used to read data
                         rs2 = memory_data_out[8:7];
+                        i_type = 1;
                         sign_extended <= {{7{memory_data_out[8]}}, memory_data_out[8:0]};
                         register_read = 1;
                     end
