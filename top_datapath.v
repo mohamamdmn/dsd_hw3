@@ -16,22 +16,22 @@ module Top(
     // Address/Data buses
     wire [15:0] cu_pc;
     wire [1:0]  cu_rs1, cu_rs2, cu_rd;
-    wire [15:0] cu_reg_file_data_in; // Data to be written into RegFile
-    wire [15:0] cu_mem_addr;
+    wire  signed [15:0] cu_reg_file_data_in; // Data to be written into RegFile
+    wire  [15:0] cu_mem_addr;
     wire [15:0] cu_mem_data_in;    // Data to be written into Memory
 
     // Data outputs from modules
-    wire [15:0] rf_read_data1, rf_read_data2;
+    wire  signed [15:0] rf_read_data1, rf_read_data2;
     wire [15:0] mem_read_data;
-    wire [15:0] alu_result_out;
+    wire signed[15:0] alu_result_out;
     wire   alu_done_out;
     wire i_type;
-    wire [15:0] b_final;
-    wire [15:0] sign_extended;
-    wire [1:0] read_reg_source1_real;
+    wire signed [15:0] b_final;
+    wire  signed [15:0] sign_extended;
+    wire [1:0] read_reg_source2_real;
 
     assign b_final = i_type ? sign_extended : rf_read_data2;
-    assign read_reg_source1_real = i_type ? cu_rd : cu_rs1;
+    assign read_reg_source2_real = i_type ? cu_rd : cu_rs2;
 
 
 
@@ -68,8 +68,8 @@ module Top(
         .clk(clk),
         .reset(reset),
         .write_enable(cu_reg_write),
-        .read_reg1(read_reg_source1_real),
-        .read_reg2(cu_rs2),
+        .read_reg1(cu_rs1),
+        .read_reg2(read_reg_source2_real),
         .write_reg(cu_rd),
         .write_data(cu_reg_file_data_in), // Data comes from CU's selection
         .read_data1(rf_read_data1),

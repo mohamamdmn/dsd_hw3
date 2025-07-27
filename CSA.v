@@ -1,8 +1,8 @@
 module carry_select_adder(
-    input wire [15:0] a,
-    input wire [15:0] b,
+    input wire signed [15:0] a,
+    input wire  signed [15:0] b,
     input wire carry_in,
-    output wire [15:0] sum,
+    output wire signed [15:0] sum,
     output wire carry_out
 );
 

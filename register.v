@@ -2,8 +2,8 @@ module Register (
     input wire clk,
     input wire reset,               // Active-high reset
     input wire write_enable,
-    input wire [15:0] data_in,
-    output reg [15:0] data_out
+    input wire  signed [15:0] data_in,
+    output reg signed  [15:0] data_out
 );
     always @(posedge clk) begin
         if (reset) begin

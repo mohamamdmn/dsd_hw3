@@ -3,12 +3,12 @@ module RegisterFile (
     input wire reset,                 // Active-high reset
     input wire write_enable,
     input wire [1:0] write_reg,      // Write address
-    input wire [15:0] write_data,     // Data to write
+    input wire  signed [15:0] write_data,     // Data to write
 
     input wire [1:0] read_reg1,      // Read address 1
     input wire [1:0] read_reg2,      // Read address 2
-    output reg [15:0] read_data1,     // Output data 1
-    output reg [15:0] read_data2      // Output data 2
+    output reg  signed [15:0] read_data1,     // Output data 1
+    output reg signed  [15:0] read_data2      // Output data 2
 );
 
     // Output wires from each register

@@ -1,5 +1,5 @@
 module FullAdder(
-    input a,         
+    input  a,         
     input b,   
     input carry_in,  
     output carry_out,

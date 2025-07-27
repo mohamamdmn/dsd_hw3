@@ -1,20 +1,20 @@
 module ALU (
     input wire clk,
     input wire rst,
-    input wire [15:0] a,
-    input wire [15:0] b,
+    input  wire signed [15:0] a,
+    input  wire  signed[15:0] b,
     input wire start,
     input wire [2:0] alu_op,
-    output reg [15:0] alu_out,
+    output reg signed  [15:0] alu_out,
     output reg done
 );
 
 //Add and subtract
-wire [15:0] b_complete = ~b + 1;
-wire [15:0] b_final;
+wire  signed [15:0] b_complete = ~b + 1;
+wire  signed [15:0] b_final;
 assign b_final = (alu_op == 2'b001) ? b_complete : b ;
 wire carry;
-wire [15:0] add_sub_result;
+wire signed [15:0] add_sub_result;
 carry_select_adder csa(
     .a(a),
     .b(b_final),

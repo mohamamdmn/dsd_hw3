@@ -51,20 +51,6 @@ module ControlUnit(
             // Update PC only after a successful instruction cycle
             if (state == WRITEBK) begin
                 pc <= pc + 1;
-                alu_op <= 3'b000;
-                alu_start <= 0;
-                register_read <= 0;
-                register_write <= 0;
-                register_file_data <= 0;
-                memory_read <= 0;
-                memory_write <= 0;
-                memory_addr <= 0;
-                i_type <= 0;
-                sign_extended <= 16'd0;
-                rs1 <= 2'b00;
-                rs2 <= 2'b00;
-                rd <= 2'b00;
-                ready <= 0;
             end
         end
     end
@@ -82,6 +68,19 @@ module ControlUnit(
                 memory_read = 1;
                 memory_addr = pc;
                 next_state = ID;
+
+                alu_op = 3'b000;
+                alu_start = 0;
+                register_read = 0;
+                register_write = 0;
+                register_file_data = 0;
+                memory_write = 0;
+                i_type = 0;
+                sign_extended = 16'd0;
+                rs1 = 2'b00;
+                rs2 = 2'b00;
+                rd = 2'b00;
+                ready = 0;
             end
 
             ID: begin
